@@ -20,7 +20,21 @@ class Function:
         out = Tensor(out_data, requires_grad=needs_grad)
         out.creator = func
         return out
+
+class Add(Function):
+    def forward(self, x, y):
+        return x+y
     
+    def backward(self, grad):
+        return grad,grad
+    
+class Mul(Function):
+    def forward(self, x, y):
+        return x*y
+    
+    def backward(self, grad):
+        x,y = self.tensors[0].data, self.tensors[1].data
+        return grad*y, grad*x
 
 class Tensor:
     def __init__(self, data, requires_grad=False):
@@ -38,4 +52,20 @@ class Tensor:
 
     def shape(self):
         return self.data.shape
+    
+    def __add__(self, other):
+        if not isinstance(other, Tensor):
+            other = Tensor(other)
+        return Add.apply(self, other)
+    
+    def __mul__(self, other):
+        if not isinstance(other, Tensor):
+            other = Tensor(other)
+        return Mul.apply(self, other)
+    
+    def __radd__(self, other):
+        return self.__add__(other)
+    
+    def __rmul__(self, other):
+        return self.__mul__(other)
     
