@@ -1,5 +1,27 @@
 import numpy as np
 
+class Function:
+    def __init__(self, *tensors):
+        self.tensors = tensors
+
+    def forward(self, *args):
+        raise NotImplementedError
+    
+    def backward(self, grad):
+        raise NotImplementedError
+    
+    @classmethod
+    def apply(cls, *tensors):
+        func = cls(*tensors)
+        raw = [t.data for t in tensors]
+        out_data = func.forward(*raw)
+
+        needs_grad = any(t.requires_grad for t in tensors)
+        out = Tensor(out_data, requires_grad=needs_grad)
+        out.creator = func
+        return out
+    
+
 class Tensor:
     def __init__(self, data, requires_grad=False):
         # forces the type of data of 'data' to always be a float64
