@@ -40,6 +40,25 @@ class Mul(Function):
         grad_x = grad * y.data if x.requires_grad else None
         grad_y = grad * x.data if y.requires_grad else None
         return grad_x, grad_y
+    
+class MatMul(Function):
+    def forward(self, x, y):
+        return x @ y
+
+    def backward(self, grad):
+        x, y = self.tensors[0].data, self.tensors[1].data
+
+        if self.tensors[0].requires_grad:
+            grad_x = np.outer(grad, y) if y.ndim == 1 else grad @ y.T
+        else:
+            grad_x = None
+
+        if self.tensors[1].requires_grad:
+            grad_y = x.T @ grad if x.ndim != 1 else x @ grad
+        else:
+            grad_y = None
+
+        return grad_x, grad_y
 
 class Tensor:
     def __init__(self, data, requires_grad=False):
@@ -73,6 +92,12 @@ class Tensor:
     
     def __rmul__(self, other):
         return self.__mul__(other)
+    
+    def __matmul__(self, other):
+        if not isinstance(other, Tensor):
+            other = Tensor(other)
+        return MatMul.apply(self, other)
+
     
     def backward(self, grad=None):
         if grad is None:
@@ -109,3 +134,10 @@ class Tensor:
                     inp.grad = g.copy()
                 else:
                     inp.grad += g
+
+W = Tensor(np.array([[1.,2.],[3.,4.]]), requires_grad=True)
+x = Tensor(np.array([1., 0.]), requires_grad=True)
+out = W @ x        # [1., 3.]
+loss = out * Tensor(np.array([1., 1.]))
+(loss.tensors[0] if hasattr(loss, 'tensors') else loss).backward()
+print(W.grad)
