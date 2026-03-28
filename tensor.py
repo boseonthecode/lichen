@@ -1,5 +1,4 @@
 import numpy as np
-
 class Function:
     def __init__(self, *tensors):
         self.tensors = tensors
