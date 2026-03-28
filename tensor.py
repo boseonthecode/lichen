@@ -134,10 +134,3 @@ class Tensor:
                     inp.grad = g.copy()
                 else:
                     inp.grad += g
-
-W = Tensor(np.array([[1.,2.],[3.,4.]]), requires_grad=True)
-x = Tensor(np.array([1., 0.]), requires_grad=True)
-out = W @ x        # [1., 3.]
-loss = out * Tensor(np.array([1., 1.]))
-(loss.tensors[0] if hasattr(loss, 'tensors') else loss).backward()
-print(W.grad)
