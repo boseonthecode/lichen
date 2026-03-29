@@ -10,4 +10,4 @@ class SGD:
     def step(self):
         for p in self.parameters:
             if p.grad is not None:
-                p.data -= lr*p.grad
+                p.data -= self.lr*p.grad
