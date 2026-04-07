@@ -25,3 +25,14 @@ def relu(x):
 
 def mse_loss(pred, target):
     return _MSELoss.apply(pred,target)
+
+class _Sigmoid(Function):
+    def forward(self, x):
+        self.out = 1/(1+np.exp(-x))
+        return self.out
+    
+    def backward(self, grad):
+        return (grad*self.out*(1-self.out),)
+    
+def sigmoid(x):
+    return _Sigmoid.apply(x)
