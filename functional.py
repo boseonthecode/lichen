@@ -45,13 +45,13 @@ class _CrossEntropyLoss(Function):
         e = np.exp(logits - logits.max(axis=1, keepdims = True))
         self.probs = e/e.sum(axis=1, keepdims=True)
         self.targets = targets.astype(int)
-        correct_probs = self.probs[np.arrange(batch), self.targets]
+        correct_probs = self.probs[np.arange(batch), self.targets]
         return np.array(-np.mean(np.log(correct_probs + 1e-9)))  
     
     def backward(self, grad):
         batch = self.probs.shape[0]
         d = self.probs.copy()
-        d[np.arrange(batch), self.targets] -=1
+        d[np.arange(batch), self.targets] -=1
         d = grad*d/batch
         return d, None
     
