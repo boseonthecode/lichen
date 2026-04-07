@@ -1,4 +1,5 @@
 from tensor import Tensor
+from functional import relu, sigmoid
 import numpy as np
 
 class Module:
@@ -49,3 +50,16 @@ class Linear(Module):
         W = self._parameters['W']
         b = self._parameters['b']
         return x @ W.T() + b
+    
+class MLP(Module):
+    def __init__(self, in_features, hidden, out_features):
+        super().__init__()
+        self._modules['l1'] = Linear(in_features, hidden)
+        self._modules['l2'] = Linear(hidden, out_features)
+
+    def forward(self, x):
+        x = self._modules['l1'](x)
+        x = relu(x)
+        x = self._modules['l2'](x)
+        x = sigmoid(x)
+        return x
