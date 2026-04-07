@@ -1,4 +1,4 @@
-# Lichen 🌱
+# lichen
 
 A minimalistic, PyTorch-like machine learning library built from scratch in Python and NumPy. It features a custom autograd engine, common neural network modules, and standard optimizers. 
 
@@ -14,7 +14,7 @@ A minimalistic, PyTorch-like machine learning library built from scratch in Pyth
 Clone the repository and ensure you have `numpy` installed:
 
 ```bash
-git clone https://github.com/yourusername/lichen.git
+git clone https://github.com/boseonthecode/lichen.git
 cd lichen
 pip install numpy
 ```
