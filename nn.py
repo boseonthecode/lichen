@@ -16,7 +16,7 @@ class Module:
     
     def parameters(self):
         params = list(self._parameters.values())
-        for module in self._parameters.values():
+        for module in self._modules.values():
             params.extend(module.parameters())
         return params
     
@@ -30,6 +30,7 @@ class Module:
             m.train()
 
     def eval(self):
+        self._is_training = False
         for m in self._modules.values():
             m.eval()
     

@@ -1,4 +1,18 @@
 import numpy as np
+
+def _sum_to_shape(grad, shape):
+    if shape == ():
+        return np.array(grad).sum()
+
+    while grad.ndim > len(shape):
+        grad = grad.sum(axis=0)
+
+    for axis, dim in enumerate(shape):
+        if dim == 1 and grad.shape[axis] != 1:
+            grad = grad.sum(axis=axis, keepdims=True)
+
+    return grad
+
 class Function:
     def __init__(self, *tensors):
         self.tensors = tensors
@@ -26,8 +40,8 @@ class Add(Function):
     
     def backward(self, grad):
         x,y = self.tensors[0],self.tensors[1]
-        grad_x = grad if x.requires_grad else None
-        grad_y = grad if y.requires_grad else None
+        grad_x = _sum_to_shape(grad, x.data.shape) if x.requires_grad else None
+        grad_y = _sum_to_shape(grad, y.data.shape) if y.requires_grad else None
         return grad_x,grad_y
     
 class Mul(Function):
@@ -36,8 +50,8 @@ class Mul(Function):
     
     def backward(self, grad):
         x,y = self.tensors[0], self.tensors[1]
-        grad_x = grad * y.data if x.requires_grad else None
-        grad_y = grad * x.data if y.requires_grad else None
+        grad_x = _sum_to_shape(grad * y.data, x.data.shape) if x.requires_grad else None
+        grad_y = _sum_to_shape(grad * x.data, y.data.shape) if y.requires_grad else None
         return grad_x, grad_y
     
 class MatMul(Function):
@@ -58,6 +72,13 @@ class MatMul(Function):
             grad_y = None
 
         return grad_x, grad_y
+
+class Transpose(Function):
+    def forward(self, x):
+        return x.T
+
+    def backward(self, grad):
+        return (grad.T,)
 
 class Tensor:
     def __init__(self, data, requires_grad=False):
@@ -135,4 +156,4 @@ class Tensor:
                     inp.grad += g
     
     def T(self):
-        return Tensor(self.data.T, requires_grad=self.requires_grad)
+        return Transpose.apply(self)
