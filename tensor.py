@@ -133,3 +133,6 @@ class Tensor:
                     inp.grad = g.copy()
                 else:
                     inp.grad += g
+    
+    def T(self):
+        return Tensor(self.data.T, requires_grad=self.requires_grad)
